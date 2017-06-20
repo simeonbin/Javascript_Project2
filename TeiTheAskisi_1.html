@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        table, th, td {
+            width:500px;
+            border: 1px solid black;
+            border-collapse: collapse;
+            line-height:25px;
+        }
+        label {
+            display: inline-block;
+            float: left;
+            width: 120px;
+            text-align: left;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h3>Press Button to Start Game</h3>
+
+<button type="button" id="button1" onclick="button1_Press()">Start Game</button> <br/><br/>
+
+
+<p><b><label for="primaryrandomint">Primary Random Int(3-9):</label>
+    <input name="primaryrandomint" id="primaryrandomint" type="text" />
+  <!--  <span id="primaryrandomint"></span> --> </b></p> <br/>
+
+<p><b><label for="correctUserChoices">Correct User Choices:</label>
+    <input name="correctUserChoices" id="correctUserChoices" type="text" /> </b></p> <br/>
+
+<p><b><label for="failedUserChoices">Failed User Choices:</label>
+    <input name="failedUserChoices" id="failedUserChoices" type="text" /> </b></p> <br/>
+
+<p><b><label for="correctNums">Correct Numbers:</label>
+    <input name="correctNums" id="correctNums" type="text" /> </b></p> <br/>
+
+<p><b><label for="userScore">User Score:</label>
+    <input name="userScore" id="userScore" type="text" /> </b></p> <br/>
+
+<p><b><label for="gametimer">Game Timer:</label>
+    <input name="gametimer" id="gametimer" type="text" /> </b></p> <br/>
+
+<table id="gameTable" >
+    <tr height="20">
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+    </tr>
+    <tr height="20">
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+    </tr>
+    <tr height="20">
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+    </tr>
+    <tr height="20">
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+    </tr>
+    <tr height="20">
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+        <td>      </td>
+    </tr>
+</table>
+
+
+<script>
+    var successfulChoices=0; var failedChoices=0; var correctNums=0; var wrongNums=0;
+    var primaryRandomInt=0;
+    /**
+     * Returns a random integer between min (inclusive) and max (inclusive)
+     * Using Math.round() will give you a non-uniform distribution!
+     */
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function startRandomNumbers() {
+        var rI = getRandomInt(3, 9);
+        document.getElementById("primaryrandomint").setAttribute("value", rI);
+
+        for (var iRow = 0; iRow < 5; iRow++) {
+            var x = document.getElementById("gameTable").rows[iRow].cells;
+
+            for (var iCol = 0; iCol < 5; iCol++) {
+                x[iCol].innerHTML = getRandomInt(1, 100);
+            }
+        }
+    }
+
+    function calculateUserScore() {
+        var succChoiceRatio = (successfulChoices / correctNums);
+        failRatio = (failedChoices / (25 - correctNums) );
+        document.getElementById("userScore").setAttribute("value", succChoiceRatio - failRatio);
+    }
+
+    function itsGameOver(id, seconds) {
+        document.getElementById("correctUserChoices").setAttribute("value", successfulChoices);
+        document.getElementById("failedUserChoices").setAttribute("value", failedChoices);
+        calculateUserScore();
+        clearInterval(id);
+        alert('Game Time Elapsed: ' + seconds + ' seconds');
+        removeClickEventsOnTableCells();
+    }
+
+    function theGameTimer() {
+        var seconds = 0;
+        document.getElementById("gametimer").setAttribute("value", seconds);
+
+        var id = setInterval ( function( ) {
+                seconds++;
+                console.log(seconds);
+                document.getElementById("gametimer").setAttribute("value", seconds);
+
+                        if (seconds > 30) {
+                            itsGameOver(id, seconds);
+                        }
+                }      ,1000 );
+    }
+
+    function button1_Press() {
+        var seconds2;
+        var x = document.getElementById("button1");
+
+        startRandomNumbers();
+        seconds = 0;
+        document.getElementById("gametimer").setAttribute("value", seconds);
+        theGameTimer();
+        setClickEventsOnTableCells();
+    }
+
+    function checkNumCell(numCell2, tableCell) {
+        if ((numCell2 % primaryRandomInt) == 0) {
+            successfulChoices++;
+            tableCell.bgColor = "Green";
+
+        }
+        else {
+            failedChoices++;
+            tableCell.bgColor = "Red";
+        }
+    }
+
+    function checkCorrectNumbers(numCell) {
+        if ((numCell % primaryRandomInt) == 0) {
+            correctNums++;
+        } else {
+            wrongNums++;
+        }
+    }
+
+    function setCorrectFailed() {
+        document.getElementById("correctNums").setAttribute("value", correctNums);
+        document.getElementById("correctUserChoices").setAttribute("value", successfulChoices);
+        document.getElementById("failedUserChoices").setAttribute("value", failedChoices);
+    }
+    function setClickEventsOnTableCells () {
+
+        var table = document.getElementById("gameTable");
+
+        document.getElementById("correctNums").setAttribute("value", seconds);
+        primaryRandomInt = document.getElementById("primaryrandomint").getAttribute("value");
+
+        if (table != null) {
+
+            for (var i = 0; i < table.rows.length; i++) {
+
+                for (var j = 0; j < table.rows[i].cells.length; j++) {
+
+                var numCell = table.rows[i].cells[j].innerHTML;
+                    checkCorrectNumbers(numCell);
+                    // Set the 'onclick' Event for the Cell here !!
+                    table.rows[i].cells[j].onclick = function () {
+                        checkGame(this);
+                    };
+              }
+            }
+            setCorrectFailed();
+        }
+
+        function checkGame(tableCell) {
+
+            primaryRandomInt = document.getElementById("primaryrandomint").getAttribute("value");
+
+         //   alert(tableCell.innerHTML);
+            var numCell2 = tableCell.innerHTML;
+            checkNumCell(numCell2, tableCell);
+            alert("Success Num= " + successfulChoices + ", Fail Num= " + failedChoices);
+        }
+
+    }
+
+    function removeClickEventsOnTableCells() {
+        var table = document.getElementById("gameTable");
+
+        if (table != null) {
+
+            for (var i = 0; i < table.rows.length; i++) {
+
+                for (var j = 0; j < table.rows[i].cells.length; j++) {
+
+                    // Remove the 'onclick' Event for ALL Cells here !!
+                    table.rows[i].cells[j].onclick = null;
+
+                }
+            }
+        }
+    }
+
+
+
+
+</script>
+
+</body>
+
+</html>
